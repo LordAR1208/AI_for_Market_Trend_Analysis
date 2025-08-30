@@ -215,18 +215,5 @@ const Dashboard: React.FC = () => {
     </div>
   );
 };
-            </div>
-          </div>
-        </motion.div>
-      </main>
-      
-      <AuthModal 
-        isOpen={showAuthModal} 
-        onClose={() => setShowAuthModal(false)} 
-      />
-    </div>
-  );
-};
 
-export default Dashboard;
 export default Dashboard;
