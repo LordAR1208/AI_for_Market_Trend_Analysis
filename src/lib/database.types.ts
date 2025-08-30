@@ -473,4 +473,4 @@ export interface Database {
       signal_type: 'buy' | 'sell' | 'hold'
     }
   }
-}</parameter>
+}

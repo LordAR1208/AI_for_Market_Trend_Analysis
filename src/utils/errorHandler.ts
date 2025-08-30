@@ -221,7 +221,7 @@ export class ErrorHandler {
 /**
  * React Error Boundary Component
  */
-export class ErrorBoundary extends React.Component<
+export class ErrorBoundaryClass extends React.Component<
   { children: React.ReactNode; fallback?: React.ComponentType<{ error: AppError }> },
   { hasError: boolean; error: AppError | null }
 > {

@@ -297,4 +297,4 @@ class AnalysisService {
   }
 }
 
-export const analysisService = new AnalysisService();</parameter>
+export const analysisService = new AnalysisService();

@@ -137,6 +137,26 @@ class DataService {
     return this.getPredictions(symbol);
   }
 
+  // Public method for historical data
+  async getHistoricalDataAsync(symbol: string, days: number = 30): Promise<TrendData[]> {
+    return this.getHistoricalData(symbol, days);
+  }
+
+  // Public method for user alerts
+  async getUserAlertsPublic(): Promise<Alert[]> {
+    return this.getUserAlerts();
+  }
+
+  // Public method for real analysis
+  async getRealAnalysisPublic(symbol: string): Promise<AnalysisResult> {
+    return this.getRealAnalysis(symbol);
+  }
+
+  // Public method for technical analysis
+  performTechnicalAnalysisPublic(symbol: string): AnalysisResult {
+    return this.performTechnicalAnalysis(symbol);
+  }
+
   generateAlerts(): Alert[] {
     // For authenticated users, get real alerts
     if (this.isUsingRealData && authService.isAuthenticated()) {

@@ -299,4 +299,4 @@ export class DataProcessor {
   }
 }
 
-export const dataProcessor = new DataProcessor();</parameter>
+export const dataProcessor = new DataProcessor();

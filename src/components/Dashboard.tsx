@@ -28,18 +28,18 @@ const Dashboard: React.FC = () => {
       
       try {
         const initialMarketData = await dataService.getLatestMarketData();
-        const initialAlerts = user ? await dataService.getUserAlertsPublic() : [];
+        const initialAlerts = user ? await dataService.getUserAlertsPublic() : dataService.generateAlerts();
         const analysis = await dataService.getRealAnalysisPublic(selectedSymbol);
       
         setMarketData(initialMarketData);
-        setAlerts(initialAlerts.length > 0 ? initialAlerts : dataService.generateAlerts());
+        setAlerts(Array.isArray(initialAlerts) ? initialAlerts : dataService.generateAlerts());
         setAnalysisResult(analysis);
       } catch (error) {
         console.error('Error initializing data:', error);
         // Fallback to mock data
         const initialMarketData = dataService.generateMockMarketData();
         const initialAlerts = dataService.generateAlerts();
-        const analysis = dataService.performTechnicalAnalysis(selectedSymbol);
+        const analysis = dataService.performTechnicalAnalysisPublic(selectedSymbol);
         
         setMarketData(initialMarketData);
         setAlerts(initialAlerts);
@@ -58,7 +58,7 @@ const Dashboard: React.FC = () => {
       if (user) {
         try {
           const updatedAlerts = await dataService.getUserAlertsPublic();
-          setAlerts(updatedAlerts);
+          setAlerts(Array.isArray(updatedAlerts) ? updatedAlerts : []);
         } catch (error) {
           console.error('Error updating alerts:', error);
         }

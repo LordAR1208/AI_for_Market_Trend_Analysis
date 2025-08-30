@@ -38,4 +38,4 @@ export const handleSupabaseError = (error: any) => {
   }
   
   throw new Error(error?.message || 'An unexpected error occurred');
-};</parameter>
+};

@@ -20,7 +20,7 @@ const PredictionPanel: React.FC<PredictionPanelProps> = ({ symbol }) => {
         setPredictions(predictionData);
       } catch (error) {
         console.error('Error fetching predictions:', error);
-        const fallbackData = dataService.generatePredictions(symbol);
+        const fallbackData = await dataService.getPredictionsAsync(symbol);
         setPredictions(fallbackData);
       }
     };

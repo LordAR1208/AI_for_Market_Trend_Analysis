@@ -102,7 +102,7 @@ class MarketDataService {
         .from('historical_data')
         .select(`
           *,
-          technical_indicators(rsi, macd, ma_20, ma_50)
+          technical_indicators!left(rsi, macd, ma_20, ma_50)
         `)
         .eq('symbol_id', symbolData.id)
         .gte('date', startDate.toISOString().split('T')[0])
@@ -115,10 +115,10 @@ class MarketDataService {
         timestamp: item.date,
         price: parseFloat(item.close_price),
         volume: parseInt(item.volume),
-        ma20: item.technical_indicators?.[0]?.ma_20 ? parseFloat(item.technical_indicators[0].ma_20) : parseFloat(item.close_price),
-        ma50: item.technical_indicators?.[0]?.ma_50 ? parseFloat(item.technical_indicators[0].ma_50) : parseFloat(item.close_price),
-        rsi: item.technical_indicators?.[0]?.rsi ? parseFloat(item.technical_indicators[0].rsi) : 50,
-        macd: item.technical_indicators?.[0]?.macd ? parseFloat(item.technical_indicators[0].macd) : 0
+        ma20: item.technical_indicators?.ma_20 ? parseFloat(item.technical_indicators.ma_20) : parseFloat(item.close_price),
+        ma50: item.technical_indicators?.ma_50 ? parseFloat(item.technical_indicators.ma_50) : parseFloat(item.close_price),
+        rsi: item.technical_indicators?.rsi ? parseFloat(item.technical_indicators.rsi) : 50,
+        macd: item.technical_indicators?.macd ? parseFloat(item.technical_indicators.macd) : 0
       }));
     } catch (error) {
       console.error('Error fetching historical data:', error);

@@ -200,7 +200,7 @@ export class TechnicalIndicators {
     prices: number[],
     highs?: number[],
     lows?: number[],
-    volumes?: number[]
+    _volumes?: number[]
   ): Partial<TechnicalIndicatorResult> {
     const result: Partial<TechnicalIndicatorResult> = {};
     

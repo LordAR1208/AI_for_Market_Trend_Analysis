@@ -25,7 +25,7 @@ const TrendChart: React.FC<TrendChartProps> = ({ symbol }) => {
         setData(historicalData);
       } catch (error) {
         console.error('Error fetching chart data:', error);
-        const fallbackData = dataService.generateHistoricalData(symbol, days);
+        const fallbackData = await dataService.getHistoricalDataAsync(symbol, days);
         setData(fallbackData);
       }
     };
