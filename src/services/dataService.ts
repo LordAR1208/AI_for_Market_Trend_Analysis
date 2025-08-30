@@ -1,14 +1,24 @@
 import { MarketData, TrendData, PredictionData, Alert, AnalysisResult } from '../types';
+import { marketDataService } from './marketDataService';
+import { alertService } from './alertService';
+import { analysisService } from './analysisService';
+import { authService } from './authService';
 
 class DataService {
   private wsConnection: WebSocket | null = null;
   private dataUpdateInterval: NodeJS.Timeout | null = null;
+  private isUsingRealData: boolean = true;
 
   // Mock API endpoints - in production, these would be real market data APIs
   private readonly API_BASE = 'https://api.marketdata.com/v1';
   
   // Simulate real-time market data
   generateMockMarketData(): MarketData[] {
+    // Try to use real data first
+    if (this.isUsingRealData) {
+      return this.getLatestMarketData();
+    }
+    
     const symbols = ['AAPL', 'GOOGL', 'MSFT', 'TSLA', 'AMZN', 'NVDA', 'META', 'BTC', 'ETH', 'SPY'];
     
     return symbols.map(symbol => {
@@ -28,7 +38,22 @@ class DataService {
     });
   }
 
+  async getLatestMarketData(): Promise<MarketData[]> {
+    try {
+      return await marketDataService.getLatestMarketData();
+    } catch (error) {
+      console.error('Error fetching real market data, falling back to mock:', error);
+      this.isUsingRealData = false;
+      return this.generateMockMarketData();
+    }
+  }
+
   generateHistoricalData(symbol: string, days: number = 30): TrendData[] {
+    // Try to use real data first
+    if (this.isUsingRealData) {
+      return this.getHistoricalData(symbol, days);
+    }
+    
     const data: TrendData[] = [];
     const basePrice = this.getBasePrice(symbol);
     let currentPrice = basePrice;
@@ -61,7 +86,21 @@ class DataService {
     return data;
   }
 
+  async getHistoricalData(symbol: string, days: number = 30): Promise<TrendData[]> {
+    try {
+      return await marketDataService.getHistoricalData(symbol, days);
+    } catch (error) {
+      console.error('Error fetching real historical data, falling back to mock:', error);
+      return this.generateHistoricalData(symbol, days);
+    }
+  }
+
   generatePredictions(symbol: string): PredictionData[] {
+    // Try to use real data first
+    if (this.isUsingRealData) {
+      return this.getPredictions(symbol);
+    }
+    
     const predictions: PredictionData[] = [];
     const basePrice = this.getBasePrice(symbol);
     let currentPrice = basePrice;
@@ -85,7 +124,21 @@ class DataService {
     return predictions;
   }
 
+  async getPredictions(symbol: string): Promise<PredictionData[]> {
+    try {
+      return await marketDataService.getPredictions(symbol);
+    } catch (error) {
+      console.error('Error fetching real predictions, falling back to mock:', error);
+      return this.generatePredictions(symbol);
+    }
+  }
+
   generateAlerts(): Alert[] {
+    // For authenticated users, get real alerts
+    if (this.isUsingRealData && authService.isAuthenticated()) {
+      return this.getUserAlerts();
+    }
+    
     const alerts: Alert[] = [];
     const symbols = ['AAPL', 'GOOGL', 'TSLA', 'BTC'];
     const alertTypes = ['price', 'volume', 'trend', 'volatility'] as const;
@@ -110,7 +163,24 @@ class DataService {
     return alerts;
   }
 
+  async getUserAlerts(): Promise<Alert[]> {
+    try {
+      const user = authService.getUser();
+      if (!user) return [];
+      
+      return await alertService.getAlertsForFrontend(user.id);
+    } catch (error) {
+      console.error('Error fetching user alerts, falling back to mock:', error);
+      return this.generateAlerts();
+    }
+  }
+
   performTechnicalAnalysis(symbol: string): AnalysisResult {
+    // Try to use real analysis first
+    if (this.isUsingRealData) {
+      return this.getRealAnalysis(symbol);
+    }
+    
     const signals = [];
     const trend = Math.random() > 0.6 ? 'bullish' : Math.random() > 0.3 ? 'bearish' : 'neutral';
     const strength = Math.random() * 100;
@@ -138,6 +208,15 @@ class DataService {
       nextTarget,
       stopLoss
     };
+  }
+
+  async getRealAnalysis(symbol: string): Promise<AnalysisResult> {
+    try {
+      return await analysisService.performTechnicalAnalysis(symbol);
+    } catch (error) {
+      console.error('Error fetching real analysis, falling back to mock:', error);
+      return this.performTechnicalAnalysis(symbol);
+    }
   }
 
   private getBasePrice(symbol: string): number {
@@ -168,6 +247,12 @@ class DataService {
 
   // Simulate WebSocket connection for real-time updates
   startRealTimeUpdates(callback: (data: MarketData[]) => void): void {
+    // Try to use real-time subscription first
+    if (this.isUsingRealData) {
+      marketDataService.subscribeToRealTimeUpdates(callback);
+      return;
+    }
+    
     if (this.dataUpdateInterval) {
       clearInterval(this.dataUpdateInterval);
     }
@@ -179,6 +264,9 @@ class DataService {
   }
 
   stopRealTimeUpdates(): void {
+    // Stop real-time subscription
+    marketDataService.unsubscribeFromRealTimeUpdates();
+    
     if (this.dataUpdateInterval) {
       clearInterval(this.dataUpdateInterval);
       this.dataUpdateInterval = null;
