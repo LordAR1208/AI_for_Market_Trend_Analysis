@@ -3,6 +3,7 @@ import { marketDataService } from './marketDataService';
 import { alertService } from './alertService';
 import { analysisService } from './analysisService';
 import { authService } from './authService';
+import { predictionService } from './predictionService';
 
 class DataService {
   private wsConnection: WebSocket | null = null;
@@ -134,7 +135,18 @@ class DataService {
 
   // Public method for predictions
   async getPredictionsAsync(symbol: string): Promise<PredictionData[]> {
-    return this.getPredictions(symbol);
+    try {
+      const enhancedPredictions = await predictionService.generateEnhancedPredictions(symbol, 7);
+      return enhancedPredictions.map(pred => ({
+        timestamp: pred.timestamp,
+        predicted: pred.predicted,
+        confidence: pred.confidence,
+        actual: pred.actual
+      }));
+    } catch (error) {
+      console.error('Error getting enhanced predictions:', error);
+      return this.getPredictions(symbol);
+    }
   }
 
   // Public method for historical data

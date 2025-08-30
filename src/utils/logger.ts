@@ -246,6 +246,23 @@ export class PerformanceMonitor {
 /**
  * React hook for error handling
  */
+export class ErrorHandler {
+  static handleError(error: any, context?: string): any {
+    logger.error(`Error in ${context || 'Unknown'}`, error, context);
+    return {
+      code: error.code || 'UNKNOWN_ERROR',
+      message: error.message || 'An unexpected error occurred',
+      details: error,
+      timestamp: new Date().toISOString(),
+      severity: 'medium' as const
+    };
+  }
+
+  static handleApiError(error: any, endpoint?: string): any {
+    return this.handleError(error, `API:${endpoint || 'Unknown'}`);
+  }
+}
+
 export const useErrorHandler = () => {
   const handleError = (error: any, context?: string) => {
     return ErrorHandler.handleError(error, context);

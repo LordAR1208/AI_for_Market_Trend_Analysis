@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { LogIn } from 'lucide-react';
+import { LogIn, TrendingUp, Brain, Target } from 'lucide-react';
 import { MarketData, Alert, AnalysisResult } from '../types';
 import { dataService } from '../services/dataService';
 import { useAuth } from '../hooks/useAuth.tsx';
 import MarketOverview from './MarketOverview';
 import TrendChart from './TrendChart';
-import PredictionPanel from './PredictionPanel';
+import EnhancedPredictionChart from './EnhancedPredictionChart';
+import ValidationDashboard from './ValidationDashboard';
+import RealTimeValidator from './RealTimeValidator';
 import AlertsPanel from './AlertsPanel';
 import TechnicalAnalysis from './TechnicalAnalysis';
 import Header from './Header';
@@ -20,6 +22,7 @@ const Dashboard: React.FC = () => {
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [activeTab, setActiveTab] = useState<'overview' | 'predictions' | 'validation'>('overview');
 
   useEffect(() => {
     // Initialize data
@@ -152,22 +155,66 @@ const Dashboard: React.FC = () => {
           </section>
 
           {/* Main Analysis Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Chart and Predictions */}
-            <div className="lg:col-span-2 space-y-8">
-              <TrendChart symbol={selectedSymbol} />
-              <PredictionPanel symbol={selectedSymbol} />
-            </div>
+          {/* Navigation Tabs */}
+          <div className="flex space-x-1 bg-gray-800 rounded-lg p-1 mb-8">
+            {[
+              { id: 'overview', label: 'Market Overview', icon: TrendingUp },
+              { id: 'predictions', label: 'AI Predictions', icon: Brain },
+              { id: 'validation', label: 'Model Validation', icon: Target }
+            ].map(({ id, label, icon: Icon }) => (
+              <button
+                key={id}
+                onClick={() => setActiveTab(id as any)}
+                className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
+                  activeTab === id 
+                    ? 'bg-blue-600 text-white' 
+                    : 'text-gray-400 hover:text-white hover:bg-gray-700'
+                }`}
+              >
+                <Icon className="h-4 w-4" />
+                <span>{label}</span>
+              </button>
+            ))}
+          </div>
 
-            {/* Sidebar */}
+          {/* Tab Content */}
+          {activeTab === 'overview' && (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              <div className="lg:col-span-2 space-y-8">
+                <TrendChart symbol={selectedSymbol} />
+              </div>
+              <div className="space-y-8">
+                <AlertsPanel 
+                  alerts={alerts} 
+                  onDismiss={handleAlertDismiss} 
+                />
+                {analysisResult && (
+                  <TechnicalAnalysis analysis={analysisResult} />
+                )}
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'predictions' && (
             <div className="space-y-8">
-              <AlertsPanel 
-                alerts={alerts} 
-                onDismiss={handleAlertDismiss} 
-              />
-              {analysisResult && (
-                <TechnicalAnalysis analysis={analysisResult} />
-              )}
+              <EnhancedPredictionChart symbol={selectedSymbol} />
+              <RealTimeValidator symbols={[selectedSymbol]} />
+            </div>
+          )}
+
+          {activeTab === 'validation' && (
+            <ValidationDashboard symbols={marketData.map(d => d.symbol)} />
+          )}
+        </motion.div>
+      </main>
+      
+      <AuthModal 
+        isOpen={showAuthModal} 
+        onClose={() => setShowAuthModal(false)} 
+      />
+    </div>
+  );
+};
             </div>
           </div>
         </motion.div>
@@ -181,4 +228,5 @@ const Dashboard: React.FC = () => {
   );
 };
 
+export default Dashboard;
 export default Dashboard;
