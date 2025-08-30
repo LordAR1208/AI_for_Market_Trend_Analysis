@@ -43,7 +43,6 @@ class DataService {
       return await marketDataService.getLatestMarketData();
     } catch (error) {
       console.error('Error fetching real market data, falling back to mock:', error);
-      this.isUsingRealData = false;
       return this.generateMockMarketData();
     }
   }

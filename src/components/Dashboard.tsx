@@ -28,11 +28,11 @@ const Dashboard: React.FC = () => {
       
       try {
         const initialMarketData = await dataService.getLatestMarketData();
-        const initialAlerts = user ? await dataService.getUserAlertsPublic() : dataService.generateAlerts();
+        const initialAlerts = user ? await dataService.getUserAlertsPublic() : [];
         const analysis = await dataService.getRealAnalysisPublic(selectedSymbol);
       
         setMarketData(initialMarketData);
-        setAlerts(initialAlerts);
+        setAlerts(initialAlerts.length > 0 ? initialAlerts : dataService.generateAlerts());
         setAnalysisResult(analysis);
       } catch (error) {
         console.error('Error initializing data:', error);

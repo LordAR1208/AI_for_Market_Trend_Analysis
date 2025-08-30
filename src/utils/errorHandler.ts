@@ -1,7 +1,7 @@
-import React from 'react';
 /**
  * Centralized Error Handling Utilities
  */
+import React from 'react';
 
 export interface AppError {
   code: string;
