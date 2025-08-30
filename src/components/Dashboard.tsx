@@ -9,6 +9,7 @@ import TrendChart from './TrendChart';
 import EnhancedPredictionChart from './EnhancedPredictionChart';
 import ValidationDashboard from './ValidationDashboard';
 import RealTimeValidator from './RealTimeValidator';
+import ManualPredictionPanel from './ManualPredictionPanel';
 import AlertsPanel from './AlertsPanel';
 import TechnicalAnalysis from './TechnicalAnalysis';
 import Header from './Header';
@@ -198,6 +199,10 @@ const Dashboard: React.FC = () => {
           {activeTab === 'predictions' && (
             <div className="space-y-8">
               <EnhancedPredictionChart symbol={selectedSymbol} />
+              <ManualPredictionPanel 
+                symbol={selectedSymbol} 
+                currentPrice={marketData.find(d => d.symbol === selectedSymbol)?.price || 0}
+              />
               <RealTimeValidator symbols={[selectedSymbol]} />
             </div>
           )}
