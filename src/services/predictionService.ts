@@ -164,29 +164,28 @@ class PredictionService {
     try {
       logger.info(`Fetching 2025 real-time data for ${symbol}`, {}, 'RealTime');
       
-      // Try multiple sources in parallel for better reliability
-      const dataPromises = [
-        this.fetchFromYahooFinance(symbol),
-        this.fetchFromFinnhub(symbol),
-        this.fetchFromAlphaVantage(symbol),
-        this.fetchFromPolygon(symbol),
-        this.fetchFromTwelveData(symbol)
-      ];
-
-      const results = await Promise.allSettled(dataPromises);
-      
-      // Use the first successful result
-      for (const result of results) {
-        if (result.status === 'fulfilled' && result.value) {
-          logger.info(`Got real-time data for ${symbol}`, { 
-            price: result.value.price,
-            source: 'external_api'
-          });
-          return result.value;
-        }
+      // Try Yahoo Finance first (most reliable free source)
+      const yahooData = await this.fetchFromYahooFinance(symbol);
+      if (yahooData) {
+        logger.info(`Got real-time data from Yahoo Finance for ${symbol}`, { price: yahooData.price });
+        return yahooData;
       }
 
-      logger.warn(`All real-time sources failed for ${symbol}, using 2025 enhanced data`);
+      // Try Finnhub as backup
+      const finnhubData = await this.fetchFromFinnhub(symbol);
+      if (finnhubData) {
+        logger.info(`Got real-time data from Finnhub for ${symbol}`, { price: finnhubData.price });
+        return finnhubData;
+      }
+
+      // Try Alpha Vantage as last resort
+      const alphaData = await this.fetchFromAlphaVantage(symbol);
+      if (alphaData) {
+        logger.info(`Got real-time data from Alpha Vantage for ${symbol}`, { price: alphaData.price });
+        return alphaData;
+      }
+
+      logger.warn(`All real-time sources failed for ${symbol}, using enhanced mock data`);
       
       // Enhanced mock data with 2025 realistic prices
       return this.generateEnhanced2025MockData(symbol);
@@ -820,7 +819,19 @@ class PredictionService {
   }
 
   private getBasePrice(symbol: string): number {
-    return this.get2025BasePrice(symbol);
+    const prices: { [key: string]: number } = {
+      'AAPL': 235,
+      'GOOGL': 185,
+      'MSFT': 425,
+      'TSLA': 185,
+      'AMZN': 195,
+      'NVDA': 850,
+      'META': 580,
+      'BTC': 95000,
+      'ETH': 3800,
+      'SPY': 580
+    };
+    return prices[symbol] || 100;
   }
 
   /**

@@ -1,5 +1,4 @@
 import { supabase, handleSupabaseError } from '../lib/supabase';
-import { ErrorHandler } from '../utils/errorHandler';
 import { User, Session } from '@supabase/supabase-js';
 
 export interface AuthUser {

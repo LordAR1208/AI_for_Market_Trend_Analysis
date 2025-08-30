@@ -305,22 +305,17 @@ class DataService {
   }
 
   private getMarketCap(symbol: string): number {
-    // 2025 market capitalizations reflecting growth
     const marketCaps: { [key: string]: number } = {
-      'AAPL': 3600000000000,    // $3.6T - AI integration leader
-      'GOOGL': 2200000000000,   // $2.2T - Search + AI dominance
-      'MSFT': 3200000000000,    // $3.2T - Cloud + enterprise AI
-      'TSLA': 580000000000,     // $580B - EV + energy storage
-      'AMZN': 1800000000000,    // $1.8T - AWS + logistics
-      'NVDA': 2100000000000,    // $2.1T - AI infrastructure
-      'META': 1500000000000,    // $1.5T - Metaverse progress
-      'BTC': 1900000000000,     // $1.9T - Digital gold status
-      'ETH': 450000000000,      // $450B - DeFi ecosystem
-      'SPY': 0,                 // ETF doesn't have market cap
-      'QQQ': 0,                 // ETF doesn't have market cap
-      'AMD': 265000000000,      // $265B - AI chip competition
-      'CRM': 285000000000,      // $285B - Enterprise AI
-      'NFLX': 215000000000      // $215B - Global streaming
+      'AAPL': 3600000000000,    // $3.6T
+      'GOOGL': 2200000000000,   // $2.2T
+      'MSFT': 3200000000000,    // $3.2T
+      'TSLA': 580000000000,     // $580B
+      'AMZN': 1800000000000,    // $1.8T
+      'NVDA': 2100000000000,    // $2.1T
+      'META': 1500000000000,    // $1.5T
+      'BTC': 1900000000000,     // $1.9T
+      'ETH': 450000000000,      // $450B
+      'SPY': 0                  // ETF doesn't have market cap
     };
     return marketCaps[symbol] || 100000000000;
   }

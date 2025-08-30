@@ -199,58 +199,35 @@ class APIClient {
    */
   async fetchFromYahooFinance(symbol: string): Promise<{ price: number; timestamp: string } | null> {
     try {
-      // Enhanced 2025 Yahoo Finance API access
-      const endpoints = [
+      // Using Yahoo Finance API with 2025 real-time data
+      const response = await fetch(
         `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1m&range=1d&includePrePost=true`,
-        `https://query2.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1m&range=1d`,
-        `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${symbol}`
-      ];
-
-      for (const endpoint of endpoints) {
-        try {
-          const response = await fetch(endpoint, {
-            headers: {
-              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-              'Accept': 'application/json',
-              'Cache-Control': 'no-cache',
-              'Referer': 'https://finance.yahoo.com/'
-            }
-          });
-          
-          if (!response.ok) continue;
-      
-          const data = await response.json();
-      
-          // Try chart API format
-          const result = data.chart?.result?.[0];
-          if (result && result.meta?.regularMarketPrice) {
-            return {
-              price: result.meta.regularMarketPrice,
-              timestamp: new Date().toISOString()
-            };
+        {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
           }
+        }
+      );
       
-          // Try quote API format
-          if (data.quoteResponse?.result?.[0]?.regularMarketPrice) {
-            return {
-              price: data.quoteResponse.result[0].regularMarketPrice,
-              timestamp: new Date().toISOString()
-            };
-          }
-
-          // Try to get from latest intraday data
-          if (result && result.indicators?.quote?.[0]?.close) {
-            const closes = result.indicators.quote[0].close;
-            const latestPrice = closes.filter(price => price !== null);
-            if (latestPrice.length > 0) {
-              return {
-                price: latestPrice[latestPrice.length - 1],
-                timestamp: new Date().toISOString()
-              };
-            }
-          }
-        } catch (endpointError) {
-          continue; // Try next endpoint
+      const data = await response.json();
+      const result = data.chart?.result?.[0];
+      
+      if (result && result.meta?.regularMarketPrice) {
+        return {
+          price: result.meta.regularMarketPrice,
+          timestamp: new Date().toISOString()
+        };
+      }
+      
+      // Try to get from latest intraday data
+      if (result && result.indicators?.quote?.[0]?.close) {
+        const closes = result.indicators.quote[0].close;
+        const latestPrice = closes.filter(price => price !== null);
+        if (latestPrice.length > 0) {
+          return {
+            price: latestPrice[latestPrice.length - 1],
+            timestamp: new Date().toISOString()
+          };
         }
       }
     } catch (error) {

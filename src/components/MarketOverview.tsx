@@ -73,32 +73,4 @@ const MarketOverview: React.FC<MarketOverviewProps> = ({ data, onSymbolSelect, s
   );
 };
 
-// Helper functions for 2025 market data
-const get2025Price = (symbol: string): number => {
-  const prices: { [key: string]: number } = {
-    'AAPL': 235, 'GOOGL': 185, 'MSFT': 425, 'TSLA': 185, 'AMZN': 195,
-    'NVDA': 850, 'META': 580, 'BTC': 95000, 'ETH': 3800, 'SPY': 580,
-    'QQQ': 485, 'AMD': 165, 'INTC': 45, 'CRM': 285, 'NFLX': 485
-  };
-  return prices[symbol] || 100;
-};
-
-const get2025Volume = (symbol: string): number => {
-  const volumes: { [key: string]: number } = {
-    'AAPL': 45000000, 'GOOGL': 25000000, 'MSFT': 35000000, 'TSLA': 85000000,
-    'AMZN': 30000000, 'NVDA': 55000000, 'META': 20000000, 'BTC': 15000000,
-    'ETH': 8000000, 'SPY': 75000000, 'QQQ': 45000000, 'AMD': 40000000
-  };
-  return volumes[symbol] || 1000000;
-};
-
-const get2025MarketCap = (symbol: string): number => {
-  const marketCaps: { [key: string]: number } = {
-    'AAPL': 3600000000000, 'GOOGL': 2200000000000, 'MSFT': 3200000000000,
-    'TSLA': 580000000000, 'AMZN': 1800000000000, 'NVDA': 2100000000000,
-    'META': 1500000000000, 'BTC': 1900000000000, 'ETH': 450000000000
-  };
-  return marketCaps[symbol] || 100000000000;
-};
-
 export default MarketOverview;
