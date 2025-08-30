@@ -145,17 +145,6 @@ const Dashboard: React.FC = () => {
           transition={{ duration: 0.6 }}
           className="space-y-8"
         >
-          {/* Market Overview */}
-          <section>
-            <h2 className="text-2xl font-bold mb-6">Market Overview</h2>
-            <MarketOverview 
-              data={marketData} 
-              onSymbolSelect={handleSymbolSelect}
-              selectedSymbol={selectedSymbol}
-            />
-          </section>
-
-          {/* Main Analysis Grid */}
           {/* Navigation Tabs */}
           <div className="flex space-x-1 bg-gray-800 rounded-lg p-1 mb-8">
             {[
