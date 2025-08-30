@@ -357,17 +357,22 @@ class MarketDataService {
   }
 
   private getBasePrice(symbol: string): number {
+    // 2025 updated stock prices with market growth
     const prices: { [key: string]: number } = {
-      'AAPL': 235,
-      'GOOGL': 185,
-      'MSFT': 425,
-      'TSLA': 185,
-      'AMZN': 195,
-      'NVDA': 850,
-      'META': 580,
-      'BTC': 95000,
-      'ETH': 3800,
-      'SPY': 580
+      'AAPL': 235,   // Apple's AI integration success
+      'GOOGL': 185,  // Google's AI leadership
+      'MSFT': 425,   // Microsoft's cloud + AI dominance
+      'TSLA': 185,   // Tesla's autonomous driving progress
+      'AMZN': 195,   // Amazon's logistics + cloud growth
+      'NVDA': 850,   // NVIDIA's AI chip monopoly
+      'META': 580,   // Meta's VR/AR breakthrough
+      'BTC': 95000,  // Bitcoin institutional adoption
+      'ETH': 3800,   // Ethereum's DeFi ecosystem
+      'SPY': 580,    // S&P 500 growth
+      'QQQ': 485,    // NASDAQ tech growth
+      'AMD': 165,    // AMD's AI chip competition
+      'CRM': 285,    // Salesforce AI integration
+      'NFLX': 485    // Netflix content + tech
     };
     return prices[symbol] || 100;
   }

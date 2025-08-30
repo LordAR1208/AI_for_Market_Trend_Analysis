@@ -509,45 +509,21 @@ class PredictionService {
    */
   private async fetchFromFinnhub(symbol: string): Promise<{ price: number; timestamp: string } | null> {
     const apiKey = import.meta.env.VITE_FINNHUB_API_KEY;
-    if (!apiKey) {
-      // Try free tier endpoint
-      try {
-        const response = await fetch(
-          `https://finnhub.io/api/v1/quote?symbol=${symbol}`,
-          {
-            headers: {
-              'Accept': 'application/json'
-            }
-          }
-        );
-        
-        const data = await response.json();
-        if (data && data.c && data.c > 0) {
-          return {
-            price: data.c,
-            timestamp: new Date().toISOString()
-          };
-        }
-      } catch (error) {
-        logger.warn('Finnhub free tier failed', error);
-      }
-      return null;
-    }
+    if (!apiKey) return null;
 
     try {
       const response = await fetch(
         `https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${apiKey}`,
         {
           headers: {
-            'X-Finnhub-Token': apiKey,
-            'Accept': 'application/json'
+            'X-Finnhub-Token': apiKey
           }
         }
       );
       
       const data = await response.json();
       
-      if (data && data.c && data.c > 0) {
+      if (data && data.c) {
         return {
           price: data.c,
           timestamp: new Date().toISOString()
@@ -844,19 +820,7 @@ class PredictionService {
   }
 
   private getBasePrice(symbol: string): number {
-    const prices: { [key: string]: number } = {
-      'AAPL': 235,
-      'GOOGL': 185,
-      'MSFT': 425,
-      'TSLA': 185,
-      'AMZN': 195,
-      'NVDA': 850,
-      'META': 580,
-      'BTC': 95000,
-      'ETH': 3800,
-      'SPY': 580
-    };
-    return prices[symbol] || 100;
+    return this.get2025BasePrice(symbol);
   }
 
   /**

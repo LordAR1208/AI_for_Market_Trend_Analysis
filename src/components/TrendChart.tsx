@@ -91,17 +91,23 @@ const TrendChart: React.FC<TrendChartProps> = ({ symbol }) => {
   };
 
   const getBasePrice = (symbol: string): number => {
+    // 2025 current market prices
     const prices: { [key: string]: number } = {
-      'AAPL': 235,
-      'GOOGL': 185,
-      'MSFT': 425,
-      'TSLA': 185,
-      'AMZN': 195,
-      'NVDA': 850,
-      'META': 580,
-      'BTC': 95000,
-      'ETH': 3800,
-      'SPY': 580
+      'AAPL': 235,   // Strong AI product integration
+      'GOOGL': 185,  // AI search and cloud leadership
+      'MSFT': 425,   // Enterprise AI dominance
+      'TSLA': 185,   // Autonomous vehicle progress
+      'AMZN': 195,   // Cloud + logistics efficiency
+      'NVDA': 850,   // AI chip market leader
+      'META': 580,   // VR/AR mainstream adoption
+      'BTC': 95000,  // Institutional treasury adoption
+      'ETH': 3800,   // DeFi and staking growth
+      'SPY': 580,    // Broad market growth
+      'QQQ': 485,    // Tech sector concentration
+      'AMD': 165,    // Data center competition
+      'INTC': 45,    // Manufacturing renaissance
+      'CRM': 285,    // AI-enhanced enterprise
+      'NFLX': 485    // Global streaming dominance
     };
     return prices[symbol] || 100;
   };
