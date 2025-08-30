@@ -123,4 +123,4 @@ const DefaultErrorFallback: React.FC<{ error: AppError; resetError: () => void }
   );
 };
 
-export default ErrorBoundary;</parameter>
+export default ErrorBoundary;
