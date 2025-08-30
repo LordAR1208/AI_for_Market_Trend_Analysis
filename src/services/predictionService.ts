@@ -238,7 +238,6 @@ class PredictionService {
     if (hour >= 15 && hour <= 16) return 0.001; // Closing activity
     if (hour >= 11 && hour <= 14) return -0.0005; // Midday lull
     return 0; // After hours
-    }
   }
 
   /**
