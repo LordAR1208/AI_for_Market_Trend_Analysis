@@ -265,4 +265,4 @@ export class TechnicalIndicators {
     
     return patterns;
   }
-}</parameter>
+}
