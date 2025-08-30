@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import type { ReactNode } from 'react';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
-import { ErrorHandler, AppError } from '../utils/errorHandler';
+import { ErrorHandler, AppError } from '../utils/errorHandler.tsx';
 
 interface Props {
   children: ReactNode;
