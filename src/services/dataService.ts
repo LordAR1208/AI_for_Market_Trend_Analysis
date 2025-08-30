@@ -257,18 +257,67 @@ class DataService {
 
   private getBasePrice(symbol: string): number {
     const prices: { [key: string]: number } = {
-      'AAPL': 175,
-      'GOOGL': 135,
-      'MSFT': 350,
-      'TSLA': 220,
-      'AMZN': 145,
-      'NVDA': 450,
-      'META': 310,
-      'BTC': 43000,
-      'ETH': 2500,
-      'SPY': 450
+      'AAPL': 235,
+      'GOOGL': 185,
+      'MSFT': 425,
+      'TSLA': 185,
+      'AMZN': 195,
+      'NVDA': 850,
+      'META': 580,
+      'BTC': 95000,
+      'ETH': 3800,
+      'SPY': 580
     };
     return prices[symbol] || 100;
+  }
+
+  private getSymbolVolatility(symbol: string): number {
+    const volatilities: { [key: string]: number } = {
+      'AAPL': 0.025,
+      'GOOGL': 0.03,
+      'MSFT': 0.02,
+      'TSLA': 0.08,  // Higher volatility for Tesla
+      'AMZN': 0.035,
+      'NVDA': 0.06,  // Higher volatility for NVIDIA
+      'META': 0.04,
+      'BTC': 0.15,   // Very high volatility for crypto
+      'ETH': 0.12,
+      'SPY': 0.015   // Lower volatility for index
+    };
+    return volatilities[symbol] || 0.03;
+  }
+
+  private getRealisticVolume(symbol: string): number {
+    const baseVolumes: { [key: string]: number } = {
+      'AAPL': 45000000,
+      'GOOGL': 25000000,
+      'MSFT': 35000000,
+      'TSLA': 85000000,
+      'AMZN': 30000000,
+      'NVDA': 55000000,
+      'META': 20000000,
+      'BTC': 15000000,
+      'ETH': 8000000,
+      'SPY': 75000000
+    };
+    const baseVolume = baseVolumes[symbol] || 1000000;
+    return Math.floor(baseVolume * (0.7 + Math.random() * 0.6));
+  }
+
+  private getMarketCap(symbol: string): number {
+    const marketCaps: { [key: string]: number } = {
+      'AAPL': 3600000000000,    // $3.6T
+      'GOOGL': 2200000000000,   // $2.2T
+      'MSFT': 3200000000000,    // $3.2T
+      'TSLA': 580000000000,     // $580B
+      'AMZN': 1800000000000,    // $1.8T
+      'NVDA': 2100000000000,    // $2.1T
+      'META': 1500000000000,    // $1.5T
+      'BTC': 1900000000000,     // $1.9T
+      'ETH': 450000000000,      // $450B
+      'SPY': 0                  // ETF doesn't have market cap
+    };
+    return marketCaps[symbol] || 100000000000;
   }
 
   private generateAlertMessage(symbol: string, type: string, severity: string): string {

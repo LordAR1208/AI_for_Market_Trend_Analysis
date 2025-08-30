@@ -195,6 +195,49 @@ class APIClient {
   }
 
   /**
+   * Fetch from Yahoo Finance (free alternative)
+   */
+  async fetchFromYahooFinance(symbol: string): Promise<{ price: number; timestamp: string } | null> {
+    try {
+      // Using Yahoo Finance API with 2025 real-time data
+      const response = await fetch(
+        `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1m&range=1d&includePrePost=true`,
+        {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+          }
+        }
+      );
+      
+      const data = await response.json();
+      const result = data.chart?.result?.[0];
+      
+      if (result && result.meta?.regularMarketPrice) {
+        return {
+          price: result.meta.regularMarketPrice,
+          timestamp: new Date().toISOString()
+        };
+      }
+      
+      // Try to get from latest intraday data
+      if (result && result.indicators?.quote?.[0]?.close) {
+        const closes = result.indicators.quote[0].close;
+        const latestPrice = closes.filter(price => price !== null);
+        if (latestPrice.length > 0) {
+          return {
+            price: latestPrice[latestPrice.length - 1],
+            timestamp: new Date().toISOString()
+          };
+        }
+      }
+    } catch (error) {
+      logger.warn('Yahoo Finance API failed', error);
+    }
+    
+    return null;
+  }
+
+  /**
    * Rate limiting to respect API limits
    */
   private async checkRateLimit(apiName: string): Promise<void> {

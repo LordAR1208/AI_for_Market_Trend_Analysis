@@ -162,30 +162,82 @@ class PredictionService {
    */
   async getRealTimeMarketData(symbol: string): Promise<{ price: number; timestamp: string }> {
     try {
-      // Try multiple data sources for reliability
-      const sources = [
-        () => this.fetchFromAlphaVantage(symbol),
-        () => this.fetchFromYahooFinance(symbol),
-        () => this.fetchFromFinnhub(symbol)
-      ];
-
-      for (const source of sources) {
-        try {
-          const data = await source();
-          if (data) return data;
-        } catch (error) {
-          logger.warn('Data source failed, trying next', error);
-        }
+      logger.info(`Fetching 2025 real-time data for ${symbol}`, {}, 'RealTime');
+      
+      // Try Yahoo Finance first (most reliable free source)
+      const yahooData = await this.fetchFromYahooFinance(symbol);
+      if (yahooData) {
+        logger.info(`Got real-time data from Yahoo Finance for ${symbol}`, { price: yahooData.price });
+        return yahooData;
       }
 
-      throw new Error('All data sources failed');
+      // Try Finnhub as backup
+      const finnhubData = await this.fetchFromFinnhub(symbol);
+      if (finnhubData) {
+        logger.info(`Got real-time data from Finnhub for ${symbol}`, { price: finnhubData.price });
+        return finnhubData;
+      }
+
+      // Try Alpha Vantage as last resort
+      const alphaData = await this.fetchFromAlphaVantage(symbol);
+      if (alphaData) {
+        logger.info(`Got real-time data from Alpha Vantage for ${symbol}`, { price: alphaData.price });
+        return alphaData;
+      }
+
+      logger.warn(`All real-time sources failed for ${symbol}, using enhanced mock data`);
+      
+      // Enhanced mock data with 2025 realistic prices
+      return this.generateEnhanced2025MockData(symbol);
     } catch (error) {
       logger.error('Error fetching real-time data', error, 'RealTime');
-      // Return mock data as fallback
-      return {
-        price: this.getBasePrice(symbol) * (0.98 + Math.random() * 0.04),
-        timestamp: new Date().toISOString()
-      };
+      return this.generateEnhanced2025MockData(symbol);
+    }
+  }
+
+  /**
+   * Generate enhanced 2025 mock data with realistic market movements
+   */
+  private generateEnhanced2025MockData(symbol: string): { price: number; timestamp: string } {
+    const basePrice = this.getBasePrice(symbol);
+    const volatility = this.getSymbolVolatility(symbol);
+    
+    // Add intraday movement pattern
+    const hour = new Date().getHours();
+    const marketOpenEffect = this.getMarketOpenEffect(hour);
+    
+    // Generate realistic price with market timing effects
+    const randomMovement = (Math.random() - 0.5) * volatility * 2;
+    const price = basePrice * (1 + randomMovement + marketOpenEffect);
+    
+    return {
+      price: Math.round(price * 100) / 100,
+      timestamp: new Date().toISOString()
+    };
+  }
+
+  private getSymbolVolatility(symbol: string): number {
+    const volatilities: { [key: string]: number } = {
+      'AAPL': 0.025,
+      'GOOGL': 0.03,
+      'MSFT': 0.02,
+      'TSLA': 0.08,
+      'AMZN': 0.035,
+      'NVDA': 0.06,
+      'META': 0.04,
+      'BTC': 0.15,
+      'ETH': 0.12,
+      'SPY': 0.015
+    };
+    return volatilities[symbol] || 0.03;
+  }
+
+  private getMarketOpenEffect(hour: number): number {
+    // Simulate market opening effects (9:30 AM - 4:00 PM EST)
+    if (hour >= 9 && hour <= 10) return 0.002;  // Opening volatility
+    if (hour >= 15 && hour <= 16) return 0.001; // Closing activity
+    if (hour >= 11 && hour <= 14) return -0.0005; // Midday lull
+    return 0; // After hours
     }
   }
 
@@ -414,9 +466,14 @@ class PredictionService {
    */
   private async fetchFromYahooFinance(symbol: string): Promise<{ price: number; timestamp: string } | null> {
     try {
-      // Using Yahoo Finance API alternative
+      // Using Yahoo Finance API with 2025 real-time data
       const response = await fetch(
-        `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1d`
+        `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1m&range=1d&includePrePost=true`,
+        {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+          }
+        }
       );
       
       const data = await response.json();
@@ -427,6 +484,18 @@ class PredictionService {
           price: result.meta.regularMarketPrice,
           timestamp: new Date().toISOString()
         };
+      }
+      
+      // Try to get from latest quote data
+      if (result && result.indicators?.quote?.[0]?.close) {
+        const closes = result.indicators.quote[0].close;
+        const latestPrice = closes[closes.length - 1];
+        if (latestPrice) {
+          return {
+            price: latestPrice,
+            timestamp: new Date().toISOString()
+          };
+        }
       }
     } catch (error) {
       logger.warn('Yahoo Finance API failed', error);
@@ -444,7 +513,12 @@ class PredictionService {
 
     try {
       const response = await fetch(
-        `https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${apiKey}`
+        `https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${apiKey}`,
+        {
+          headers: {
+            'X-Finnhub-Token': apiKey
+          }
+        }
       );
       
       const data = await response.json();
@@ -747,16 +821,16 @@ class PredictionService {
 
   private getBasePrice(symbol: string): number {
     const prices: { [key: string]: number } = {
-      'AAPL': 175,
-      'GOOGL': 135,
-      'MSFT': 350,
-      'TSLA': 220,
-      'AMZN': 145,
-      'NVDA': 450,
-      'META': 310,
-      'BTC': 43000,
-      'ETH': 2500,
-      'SPY': 450
+      'AAPL': 235,
+      'GOOGL': 185,
+      'MSFT': 425,
+      'TSLA': 185,
+      'AMZN': 195,
+      'NVDA': 850,
+      'META': 580,
+      'BTC': 95000,
+      'ETH': 3800,
+      'SPY': 580
     };
     return prices[symbol] || 100;
   }

@@ -28,7 +28,7 @@ interface ManualPredictionPanelProps {
 
 const ManualPredictionPanel: React.FC<ManualPredictionPanelProps> = ({ symbol, currentPrice }) => {
   const [params, setParams] = useState<ManualPredictionParams>({
-    currentPrice: currentPrice || 175,
+    currentPrice: currentPrice || getUpdated2025Price(symbol),
     rsi: 50,
     macd: 0,
     volume: 1000000,
@@ -140,7 +140,7 @@ const ManualPredictionPanel: React.FC<ManualPredictionPanelProps> = ({ symbol, c
 
   const resetParams = () => {
     setParams({
-      currentPrice: currentPrice || 175,
+      currentPrice: currentPrice || getUpdated2025Price(symbol),
       rsi: 50,
       macd: 0,
       volume: 1000000,
@@ -459,6 +459,22 @@ const ManualPredictionPanel: React.FC<ManualPredictionPanelProps> = ({ symbol, c
       </div>
     </motion.div>
   );
+};
+
+const getUpdated2025Price = (symbol: string): number => {
+  const prices: { [key: string]: number } = {
+    'AAPL': 235,
+    'GOOGL': 185,
+    'MSFT': 425,
+    'TSLA': 185,
+    'AMZN': 195,
+    'NVDA': 850,
+    'META': 580,
+    'BTC': 95000,
+    'ETH': 3800,
+    'SPY': 580
+  };
+  return prices[symbol] || 100;
 };
 
 export default ManualPredictionPanel;

@@ -92,16 +92,16 @@ const TrendChart: React.FC<TrendChartProps> = ({ symbol }) => {
 
   const getBasePrice = (symbol: string): number => {
     const prices: { [key: string]: number } = {
-      'AAPL': 175,
-      'GOOGL': 135,
-      'MSFT': 350,
-      'TSLA': 220,
-      'AMZN': 145,
-      'NVDA': 450,
-      'META': 310,
-      'BTC': 43000,
-      'ETH': 2500,
-      'SPY': 450
+      'AAPL': 235,
+      'GOOGL': 185,
+      'MSFT': 425,
+      'TSLA': 185,
+      'AMZN': 195,
+      'NVDA': 850,
+      'META': 580,
+      'BTC': 95000,
+      'ETH': 3800,
+      'SPY': 580
     };
     return prices[symbol] || 100;
   };
