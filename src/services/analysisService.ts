@@ -62,9 +62,6 @@ class AnalysisService {
       // Generate new analysis
       const analysis = await this.generateTechnicalAnalysis(symbolData.id, symbol);
       
-      // Store in database
-      await this.storeAnalysis(symbolData.id, analysis);
-      
       return analysis;
     } catch (error) {
       console.error('Error performing technical analysis:', error);
