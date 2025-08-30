@@ -178,4 +178,4 @@ class AuthService {
   }
 }
 
-export const authService = new AuthService();</parameter>
+export const authService = new AuthService();

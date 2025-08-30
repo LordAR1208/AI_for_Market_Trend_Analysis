@@ -350,4 +350,4 @@ class MarketDataService {
   }
 }
 
-export const marketDataService = new MarketDataService();</parameter>
+export const marketDataService = new MarketDataService();
