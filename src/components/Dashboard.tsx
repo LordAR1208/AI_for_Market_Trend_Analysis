@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { LogIn } from 'lucide-react';
 import { MarketData, Alert, AnalysisResult } from '../types';
 import { dataService } from '../services/dataService';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../hooks/useAuth.tsx';
 import MarketOverview from './MarketOverview';
 import TrendChart from './TrendChart';
 import PredictionPanel from './PredictionPanel';
