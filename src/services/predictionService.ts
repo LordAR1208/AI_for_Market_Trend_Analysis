@@ -164,28 +164,29 @@ class PredictionService {
     try {
       logger.info(`Fetching 2025 real-time data for ${symbol}`, {}, 'RealTime');
       
-      // Try Yahoo Finance first (most reliable free source)
-      const yahooData = await this.fetchFromYahooFinance(symbol);
-      if (yahooData) {
-        logger.info(`Got real-time data from Yahoo Finance for ${symbol}`, { price: yahooData.price });
-        return yahooData;
+      // Try multiple sources in parallel for better reliability
+      const dataPromises = [
+        this.fetchFromYahooFinance(symbol),
+        this.fetchFromFinnhub(symbol),
+        this.fetchFromAlphaVantage(symbol),
+        this.fetchFromPolygon(symbol),
+        this.fetchFromTwelveData(symbol)
+      ];
+
+      const results = await Promise.allSettled(dataPromises);
+      
+      // Use the first successful result
+      for (const result of results) {
+        if (result.status === 'fulfilled' && result.value) {
+          logger.info(`Got real-time data for ${symbol}`, { 
+            price: result.value.price,
+            source: 'external_api'
+          });
+          return result.value;
+        }
       }
 
-      // Try Finnhub as backup
-      const finnhubData = await this.fetchFromFinnhub(symbol);
-      if (finnhubData) {
-        logger.info(`Got real-time data from Finnhub for ${symbol}`, { price: finnhubData.price });
-        return finnhubData;
-      }
-
-      // Try Alpha Vantage as last resort
-      const alphaData = await this.fetchFromAlphaVantage(symbol);
-      if (alphaData) {
-        logger.info(`Got real-time data from Alpha Vantage for ${symbol}`, { price: alphaData.price });
-        return alphaData;
-      }
-
-      logger.warn(`All real-time sources failed for ${symbol}, using enhanced mock data`);
+      logger.warn(`All real-time sources failed for ${symbol}, using 2025 enhanced data`);
       
       // Enhanced mock data with 2025 realistic prices
       return this.generateEnhanced2025MockData(symbol);
@@ -508,21 +509,45 @@ class PredictionService {
    */
   private async fetchFromFinnhub(symbol: string): Promise<{ price: number; timestamp: string } | null> {
     const apiKey = import.meta.env.VITE_FINNHUB_API_KEY;
-    if (!apiKey) return null;
+    if (!apiKey) {
+      // Try free tier endpoint
+      try {
+        const response = await fetch(
+          `https://finnhub.io/api/v1/quote?symbol=${symbol}`,
+          {
+            headers: {
+              'Accept': 'application/json'
+            }
+          }
+        );
+        
+        const data = await response.json();
+        if (data && data.c && data.c > 0) {
+          return {
+            price: data.c,
+            timestamp: new Date().toISOString()
+          };
+        }
+      } catch (error) {
+        logger.warn('Finnhub free tier failed', error);
+      }
+      return null;
+    }
 
     try {
       const response = await fetch(
         `https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${apiKey}`,
         {
           headers: {
-            'X-Finnhub-Token': apiKey
+            'X-Finnhub-Token': apiKey,
+            'Accept': 'application/json'
           }
         }
       );
       
       const data = await response.json();
       
-      if (data && data.c) {
+      if (data && data.c && data.c > 0) {
         return {
           price: data.c,
           timestamp: new Date().toISOString()
