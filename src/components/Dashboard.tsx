@@ -28,8 +28,8 @@ const Dashboard: React.FC = () => {
       
       try {
         const initialMarketData = await dataService.getLatestMarketData();
-        const initialAlerts = user ? await dataService.getUserAlerts() : dataService.generateAlerts();
-        const analysis = await dataService.getRealAnalysis(selectedSymbol);
+        const initialAlerts = user ? await dataService.getUserAlertsPublic() : dataService.generateAlerts();
+        const analysis = await dataService.getRealAnalysisPublic(selectedSymbol);
       
         setMarketData(initialMarketData);
         setAlerts(initialAlerts);
@@ -57,7 +57,7 @@ const Dashboard: React.FC = () => {
       // Update alerts if user is authenticated
       if (user) {
         try {
-          const updatedAlerts = await dataService.getUserAlerts();
+          const updatedAlerts = await dataService.getUserAlertsPublic();
           setAlerts(updatedAlerts);
         } catch (error) {
           console.error('Error updating alerts:', error);
@@ -74,11 +74,11 @@ const Dashboard: React.FC = () => {
     // Update analysis when symbol changes
     const updateAnalysis = async () => {
       try {
-        const analysis = await dataService.getRealAnalysis(selectedSymbol);
+        const analysis = await dataService.getRealAnalysisPublic(selectedSymbol);
         setAnalysisResult(analysis);
       } catch (error) {
         console.error('Error updating analysis:', error);
-        const analysis = dataService.performTechnicalAnalysis(selectedSymbol);
+        const analysis = dataService.performTechnicalAnalysisPublic(selectedSymbol);
         setAnalysisResult(analysis);
       }
     };

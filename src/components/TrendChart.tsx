@@ -19,8 +19,18 @@ const TrendChart: React.FC<TrendChartProps> = ({ symbol }) => {
 
   useEffect(() => {
     const days = timeframe === '7d' ? 7 : timeframe === '30d' ? 30 : 90;
-    const historicalData = dataService.generateHistoricalData(symbol, days);
-    setData(historicalData);
+    const fetchData = async () => {
+      try {
+        const historicalData = await dataService.getHistoricalDataAsync(symbol, days);
+        setData(historicalData);
+      } catch (error) {
+        console.error('Error fetching chart data:', error);
+        const fallbackData = dataService.generateHistoricalData(symbol, days);
+        setData(fallbackData);
+      }
+    };
+    
+    fetchData();
   }, [symbol, timeframe]);
 
   const CustomTooltip = ({ active, payload, label }: any) => {

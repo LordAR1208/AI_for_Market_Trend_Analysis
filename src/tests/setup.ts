@@ -52,9 +52,14 @@ vi.mock('framer-motion', () => ({
   motion: {
     div: 'div',
     header: 'header',
-    section: 'section'
+    section: 'section',
+    button: 'button'
   },
-  AnimatePresence: ({ children }: { children: React.ReactNode }) => children
+  AnimatePresence: ({ children }: { children: React.ReactNode }) => children,
+  useAnimation: () => ({
+    start: vi.fn(),
+    stop: vi.fn()
+  })
 }));
 
 // Global test utilities

@@ -14,8 +14,18 @@ const PredictionPanel: React.FC<PredictionPanelProps> = ({ symbol }) => {
   const [modelAccuracy, setModelAccuracy] = useState(0.87);
 
   useEffect(() => {
-    const predictionData = dataService.generatePredictions(symbol);
-    setPredictions(predictionData);
+    const fetchPredictions = async () => {
+      try {
+        const predictionData = await dataService.getPredictionsAsync(symbol);
+        setPredictions(predictionData);
+      } catch (error) {
+        console.error('Error fetching predictions:', error);
+        const fallbackData = dataService.generatePredictions(symbol);
+        setPredictions(fallbackData);
+      }
+    };
+    
+    fetchPredictions();
     setModelAccuracy(0.85 + Math.random() * 0.1);
   }, [symbol]);
 

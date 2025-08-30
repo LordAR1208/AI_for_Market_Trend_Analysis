@@ -250,7 +250,8 @@ class MarketDataService {
   private startPeriodicUpdates(callback: (data: MarketData[]) => void) {
     setInterval(async () => {
       try {
-        const data = await this.getLatestMarketData();
+        // Generate mock updates for demo
+        const data = this.generateMockUpdates();
         callback(data);
       } catch (error) {
         console.error('Error in periodic update:', error);
@@ -258,6 +259,25 @@ class MarketDataService {
     }, 5000); // Update every 5 seconds
   }
 
+  private generateMockUpdates(): MarketData[] {
+    const symbols = ['AAPL', 'GOOGL', 'MSFT', 'TSLA', 'AMZN', 'NVDA', 'META', 'BTC', 'ETH', 'SPY'];
+    
+    return symbols.map(symbol => {
+      const basePrice = this.getBasePrice(symbol);
+      const change = (Math.random() - 0.5) * basePrice * 0.02; // Smaller changes for updates
+      const changePercent = (change / basePrice) * 100;
+      
+      return {
+        symbol,
+        price: basePrice + change,
+        change,
+        changePercent,
+        volume: Math.floor(Math.random() * 1000000) + 100000,
+        marketCap: basePrice * 1000000000,
+        timestamp: new Date().toISOString()
+      };
+    });
+  }
   private generateMockHistoricalData(symbol: string, days: number): TrendData[] {
     const data: TrendData[] = [];
     const basePrice = this.getBasePrice(symbol);

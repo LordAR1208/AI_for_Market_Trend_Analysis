@@ -133,6 +133,11 @@ class DataService {
     }
   }
 
+  // Public method for predictions
+  async getPredictionsAsync(symbol: string): Promise<PredictionData[]> {
+    return this.getPredictions(symbol);
+  }
+
   generateAlerts(): Alert[] {
     // For authenticated users, get real alerts
     if (this.isUsingRealData && authService.isAuthenticated()) {

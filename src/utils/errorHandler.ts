@@ -1,3 +1,4 @@
+import React from 'react';
 /**
  * Centralized Error Handling Utilities
  */
