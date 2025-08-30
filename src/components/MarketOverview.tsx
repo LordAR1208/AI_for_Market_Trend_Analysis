@@ -125,7 +125,7 @@ const MarketOverview: React.FC<MarketOverviewProps> = ({ data, onSymbolSelect, s
                 Vol: {(item.volume / 1000000).toFixed(1)}M
               </div>
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
     </div>
