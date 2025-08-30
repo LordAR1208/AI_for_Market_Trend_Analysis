@@ -98,28 +98,51 @@ class MarketDataService {
       const startDate = new Date();
       startDate.setDate(endDate.getDate() - days);
 
-      const { data, error } = await supabase
+      // Fetch historical data
+      const { data: historicalData, error: historicalError } = await supabase
         .from('historical_data')
-        .select(`
-          *,
-          technical_indicators!left(rsi, macd, ma_20, ma_50)
-        `)
+        .select('*')
         .eq('symbol_id', symbolData.id)
         .gte('date', startDate.toISOString().split('T')[0])
         .lte('date', endDate.toISOString().split('T')[0])
         .order('date', { ascending: true });
 
-      if (error) throw error;
+      if (historicalError) throw historicalError;
 
-      return data.map(item => ({
+      // Fetch technical indicators separately
+      const { data: technicalData, error: technicalError } = await supabase
+        .from('technical_indicators')
+        .select('*')
+        .eq('symbol_id', symbolData.id)
+        .gte('timestamp', startDate.toISOString())
+        .lte('timestamp', endDate.toISOString())
+        .order('timestamp', { ascending: true });
+
+      if (technicalError) {
+        console.warn('Could not fetch technical indicators:', technicalError);
+      }
+
+      // Create a map of technical indicators by date for efficient lookup
+      const technicalMap = new Map();
+      if (technicalData) {
+        technicalData.forEach(tech => {
+          const date = tech.timestamp.split('T')[0];
+          technicalMap.set(date, tech);
+        });
+      }
+
+      return historicalData.map(item => {
+        const tech = technicalMap.get(item.date);
+        return {
         timestamp: item.date,
         price: parseFloat(item.close_price),
         volume: parseInt(item.volume),
-        ma20: item.technical_indicators?.ma_20 ? parseFloat(item.technical_indicators.ma_20) : parseFloat(item.close_price),
-        ma50: item.technical_indicators?.ma_50 ? parseFloat(item.technical_indicators.ma_50) : parseFloat(item.close_price),
-        rsi: item.technical_indicators?.rsi ? parseFloat(item.technical_indicators.rsi) : 50,
-        macd: item.technical_indicators?.macd ? parseFloat(item.technical_indicators.macd) : 0
-      }));
+        ma20: tech?.ma_20 ? parseFloat(tech.ma_20) : parseFloat(item.close_price),
+        ma50: tech?.ma_50 ? parseFloat(tech.ma_50) : parseFloat(item.close_price),
+        rsi: tech?.rsi ? parseFloat(tech.rsi) : 50,
+        macd: tech?.macd ? parseFloat(tech.macd) : 0
+        };
+      });
     } catch (error) {
       console.error('Error fetching historical data:', error);
       // Fallback to mock data if database query fails
@@ -150,8 +173,8 @@ class MarketDataService {
       if (error) throw error;
 
       if (data.length === 0) {
-        // Generate and store new predictions if none exist
-        return await this.generateAndStorePredictions(symbolData.id, symbol);
+        // Return empty array if no predictions exist - don't try to create them from frontend
+        return [];
       }
 
       return data.map(item => ({
